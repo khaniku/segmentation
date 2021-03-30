@@ -16,7 +16,7 @@ class VNet(nn.Module):
         features = [width * 2 ** i for i in range(4)]
         print(features)
 
-        self.input_layer = InputTransition(inplanes, features[0], norm_layer=None)
+        self.input_layer = InputTransition(inplanes, features[0], norm_layer)
         self.down_layer1 = DownTransition(features[0], 1)
         self.down_layer2 = DownTransition(features[1], 2)
         self.down_layer3 = DownTransition(features[2], 3, dropout=True)
