@@ -327,7 +327,7 @@ class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
 
 
 class LUConv(nn.Module):
-    def __init__(self, nchan, relu):
+    def __init__(self, nchan):
         super(LUConv, self).__init__()
         self.relu1 = ELUCons(nchan)
         self.conv1 = nn.Conv3d(nchan, nchan, kernel_size=5, padding=2)
@@ -339,10 +339,10 @@ class LUConv(nn.Module):
 
 
 
-def _make_nConv(nchan, depth, relu):
+def _make_nConv(nchan, depth):
     layers = []
     for _ in range(depth):
-        layers.append(LUConv(nchan, relu))
+        layers.append(LUConv(nchan))
     return nn.Sequential(*layers)
 
 
@@ -371,7 +371,7 @@ class DownTransition(nn.Module):
         self.relu2 = ELUCons(outChans)
         if dropout:
             self.do1 = nn.Dropout3d()
-        self.ops = _make_nConv(outChans, nConvs, relu)
+        self.ops = _make_nConv(outChans, nConvs)
 
     def forward(self, x):
         down = self.relu1(self.bn1(self.down_conv(x)))
@@ -393,7 +393,7 @@ class UpTransition(nn.Module):
         self.relu2 = ELUCons(outChans)
         if dropout:
             self.do1 = nn.Dropout3d()
-        self.ops = _make_nConv(outChans, nConvs, relu)
+        self.ops = _make_nConv(outChans, nConvs)
 
     def forward(self, x, skipx):
         x = self.do1(x)
