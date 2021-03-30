@@ -238,6 +238,7 @@ class InputTransition(nn.Module):
         bias = False
         self.conv1 = nn.Conv3d(inplanes, planes, kernel_size=5, stride=stride, padding=dilation, groups=groups, bias=bias, dilation=dilation)
         self.bn1 = norm_layer(planes)
+        self.do1 = passthrough
         self.relu1 = ELUCons(planes)
 
     def forward(self, x):
