@@ -347,7 +347,7 @@ def _make_nConv(nchan, depth, relu):
 
 
 class InputTransition(nn.Module):
-    def __init__(self, in_planes outChans):
+    def __init__(self, in_planes, outChans):
         super(InputTransition, self).__init__()
         self.conv1 = nn.Conv3d(in_planes, outChans, kernel_size=5, padding=2)
         self.bn1 = ContBatchNorm3d(outChans)
