@@ -140,9 +140,12 @@ class VNet(nn.Module):
         self.pool_2 = conv3d_as_pool(features[1], features[2])
         self.conv_3 = conv3d_x3(features[2], features[2])
         self.pool_3 = conv3d_as_pool(features[2], features[3])
+        self.conv_4 = conv3d_x3(features[3], features[3])
+        self.pool_4 = conv3d_as_pool(features[3], features[3] * 2)
 
-        self.bottom = conv3d_x3(features[3], features[3])
+        self.bottom = conv3d_x3(features[3]*2, features[3]*2)
 
+        self.deconv_4 = deconv3d_x3(features[3] * 2, features[3] * 2)
         self.deconv_3 = deconv3d_x3(features[3], features[2])
         self.deconv_2 = deconv3d_x3(features[2], features[1])
         self.deconv_1 = deconv3d_x3(features[1], features[0])
