@@ -78,7 +78,7 @@ class conv3d_x3(nn.Module):
 
 
 class deconv3d_x3(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=3, stride=2, activation_func=nn.ReLU):
+    def __init__(self, in_channels, out_channels, kernel_size=3, stride=2, activation_func=nn.PReLU):
         super(deconv3d_x3, self).__init__()
         self.up = deconv3d_as_up(in_channels, out_channels, kernel_size, stride)
         self.lhs_conv = conv3d(out_channels // 2, out_channels, kernel_size)
