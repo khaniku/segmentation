@@ -241,11 +241,12 @@ class InputTransition(nn.Module):
         self.relu1 = ELUCons(planes)
 
     def forward(self, x):
-        # do we want a PRELU here as well?
         out = self.bn1(self.conv1(x))
         # split input in to 16 channels
-        x16 = torch.cat((x, x, x, x, x, x, x, x,
-                         x, x, x, x, x, x, x, x), 0)
+        # x16 = torch.cat((x, x, x, x, x, x, x, x,
+        #                  x, x, x, x, x, x, x, x), 0)
+        x16 = self.do1(x)
+
         out = self.relu1(torch.add(out, x16))
         return out
 
