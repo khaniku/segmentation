@@ -26,7 +26,7 @@ class VNet(nn.Module):
         # self.up_layer3 = UpTransition(features[1], features[0], 1, norm_layer)
         # self.out_tr = OutputTransition(features[0], num_classes, norm_layer)
 
-        self.in_tr = InputTransition(inplanes, features[0] // 2)
+        self.input_layer = InputTransition(inplanes, features[0] // 2)
         self.down_layer1 = DownTransition(features[0] // 2, 1)
         self.down_layer2 = DownTransition(features[1] // 2, 2)
         self.down_layer3 = DownTransition(features[2] // 2, 3, dropout=True)
