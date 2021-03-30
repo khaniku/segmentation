@@ -143,7 +143,6 @@ class VNet(nn.Module):
 
         self.bottom = conv3d_x3(features[3], features[3])
 
-        self.deconv_4 = deconv3d_x3(features[3], features[3])
         self.deconv_3 = deconv3d_x3(features[3], features[2])
         self.deconv_2 = deconv3d_x3(features[2], features[1])
         self.deconv_1 = deconv3d_x3(features[1], features[0])
@@ -157,11 +156,8 @@ class VNet(nn.Module):
         pool = self.pool_2(conv_2)
         conv_3 = self.conv_3(pool)
         pool = self.pool_3(conv_3)
-        conv_4 = self.conv_4(pool)
-        pool = self.pool_4(conv_4)
         bottom = self.bottom(pool)
-        deconv = self.deconv_4(conv_4, bottom)
-        deconv = self.deconv_3(conv_3, deconv)
+        deconv = self.deconv_3(conv_3, bottom)
         deconv = self.deconv_2(conv_2, deconv)
         deconv = self.deconv_1(conv_1, deconv)
         return self.out(deconv)
