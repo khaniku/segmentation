@@ -215,7 +215,7 @@ def ELUCons(nchan):
 class LUConv(nn.Module):
     def __init__(self, nchan, norm_layer):
         super(LUConv, self).__init__()
-        self.relu1 = nn.ReLU(inplace=True)
+        self.relu1 = nn.PReLU(nchan)
         self.conv1 = nn.Conv3d(nchan, nchan, kernel_size=5, padding=1)
         self.bn1 = norm_layer(nchan)
 

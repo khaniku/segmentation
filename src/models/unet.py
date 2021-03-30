@@ -21,11 +21,9 @@ class VNet(nn.Module):
         self.down_layer1 = DownTransition(features[0], 1, norm_layer)
         self.down_layer2 = DownTransition(features[1], 2, norm_layer)
         self.down_layer3 = DownTransition(features[2], 3, norm_layer, dropout=True)
-        self.down_layer4 = DownTransition(features[3], 2, norm_layer, dropout=True)
-        self.up_layer1 = UpTransition(features[3], features[3], 2, norm_layer, dropout=True)
-        self.up_layer2 = UpTransition(features[3], features[2], 2, norm_layer, dropout=True)
-        self.up_layer3 = UpTransition(features[2], features[1], 1, norm_layer)
-        self.up_layer4 = UpTransition(features[1], features[0], 1, norm_layer)
+        self.up_layer1 = UpTransition(features[3], features[2], 2, norm_layer, dropout=True)
+        self.up_layer2 = UpTransition(features[2], features[1], 1, norm_layer)
+        self.up_layer3 = UpTransition(features[1], features[0], 1, norm_layer)
         self.out_tr = OutputTransition(features[0], num_classes, norm_layer)
 
     def forward(self, x):
@@ -33,11 +31,9 @@ class VNet(nn.Module):
         down1 = self.down_layer1(in_lr)
         down2 = self.down_layer2(down1)
         down3 = self.down_layer3(down2)
-        down4 = self.down_layer4(down3)
-        out = self.up_layer1(down4, down3)
-        out = self.up_layer2(out, down2)
-        out = self.up_layer3(out, down1)
-        out = self.up_layer4(out, in_lr)
+        out = self.up_layer1(down3, down2)
+        out = self.up_layer2(out, down1)
+        out = self.up_layer3(out, in_lr)
         out = self.out_tr(out)
         return out
 
