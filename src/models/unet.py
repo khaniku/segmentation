@@ -35,7 +35,7 @@ class VNet(nn.Module):
         self.up_layer2 = UpTransition(features[3] // 2, features[2] // 2, 2, dropout=True)
         self.up_layer3 = UpTransition(features[2] // 2, features[1] // 2, 1)
         self.up_layer4 = UpTransition(features[1] // 2, features[0] // 2, 1)
-        self.out_tr = OutputTransition(features[0] // 2)
+        self.out_tr = OutputTransition(features[0] // 2, num_classes)
 
     def forward(self, x):
         in_lr = self.input_layer(x)

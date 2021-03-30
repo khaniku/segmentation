@@ -347,7 +347,7 @@ def _make_nConv(nchan, depth, relu):
 
 
 class InputTransition(nn.Module):
-    def __init__(self, in_planes outChans, relu):
+    def __init__(self, in_planes outChans):
         super(InputTransition, self).__init__()
         self.conv1 = nn.Conv3d(in_planes, outChans, kernel_size=5, padding=2)
         self.bn1 = ContBatchNorm3d(outChans)
@@ -361,7 +361,7 @@ class InputTransition(nn.Module):
 
 
 class DownTransition(nn.Module):
-    def __init__(self, inChans, nConvs, relu, dropout=False):
+    def __init__(self, inChans, nConvs, dropout=False):
         super(DownTransition, self).__init__()
         outChans = 2*inChans
         self.down_conv = nn.Conv3d(inChans, outChans, kernel_size=2, stride=2)
@@ -383,7 +383,7 @@ class DownTransition(nn.Module):
 
 
 class UpTransition(nn.Module):
-    def __init__(self, inChans, outChans, nConvs, relu, dropout=False):
+    def __init__(self, inChans, outChans, nConvs, dropout=False):
         super(UpTransition, self).__init__()
         self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=2)
         self.bn1 = ContBatchNorm3d(outChans // 2)
@@ -407,10 +407,10 @@ class UpTransition(nn.Module):
 
 
 class OutputTransition(nn.Module):
-    def __init__(self, inChans, outChans, norm_layer=None):
+    def __init__(self, inChans, outChans):
         super(OutputTransition, self).__init__()
         self.conv1 = nn.Conv3d(inChans, outChans, kernel_size=5, padding=1)
-        self.bn1 = norm_layer(outChans)
+        self.bn1 = ContBatchNorm3d(outChans)
         self.conv2 = nn.Conv3d(outChans, outChans, kernel_size=1) 
         self.relu1 = ELUCons(outChans)
         self.softmax = F.softmax
