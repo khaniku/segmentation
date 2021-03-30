@@ -260,8 +260,7 @@ class DownTransition(nn.Module):
         self.ops = _make_nConv(outChans, nConvs, norm_layer)
 
     def forward(self, x):
-        # down = self.relu1(self.bn1(self.down_conv(x)))
-        down = self.relu1(self.down_conv(x))
+        down = self.relu1(self.bn1(self.down_conv(x)))
         out = self.do1(down)
         out = self.ops(out)
         out = self.relu2(torch.add(out, down))
@@ -284,8 +283,7 @@ class UpTransition(nn.Module):
     def forward(self, x, skipx):
         out = self.do1(x)
         skipxdo = self.do2(skipx)
-        # out = self.relu1(self.bn1(self.up_conv(out)))
-        out = self.relu1(self.up_conv(out))
+        out = self.relu1(self.bn1(self.up_conv(out)))
         xcat = torch.cat((out, skipxdo), 1)
         out = self.ops(xcat)
         out = self.relu2(torch.add(out, xcat))
@@ -303,8 +301,7 @@ class OutputTransition(nn.Module):
 
     def forward(self, x):
         # convolve 32 down to 2 channels
-        # out = self.relu1(self.bn1(self.conv1(x)))
-        out = self.relu1(self.conv1(x))
+        out = self.relu1(self.bn1(self.conv1(x)))
         out = self.conv2(out)
 
         # make channels the last axis
