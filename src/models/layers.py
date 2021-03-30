@@ -238,17 +238,11 @@ class InputTransition(nn.Module):
         bias = False
         self.conv1 = nn.Conv3d(inplanes, planes, kernel_size=5, stride=stride, padding=dilation, groups=groups, bias=bias, dilation=dilation)
         self.bn1 = norm_layer(planes)
-        self.do1 = passthrough
         self.relu1 = ELUCons(planes)
 
     def forward(self, x):
         out = self.bn1(self.conv1(x))
-        # split input in to 16 channels
-        # x16 = torch.cat((x, x, x, x, x, x, x, x,
-        #                  x, x, x, x, x, x, x, x), 0)
-        x16 = self.do1(x)
-
-        out = self.relu1(torch.add(out, x16))
+        out = self.relu1(out)
         return out
 
 
