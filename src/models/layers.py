@@ -194,51 +194,164 @@ def passthrough(x, **kwargs):
 def ELUCons(nchan):
     return nn.PReLU(nchan)
 
-# normalization between sub-volumes is necessary
-# for good performance
-# class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
-#     def __init__(self, inplanes, planes, norm_layer=None, dilation=1, dropout=0):
+# # normalization between sub-volumes is necessary
+# # for good performance
+# # class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
+# #     def __init__(self, inplanes, planes, norm_layer=None, dilation=1, dropout=0):
 
-#     # def _check_input_dim(self, input):
-#     #     if input.dim() != 4:
-#     #         raise ValueError('expected 4D input (got {}D input)'
-#     #                          .format(input.dim()))
-#     #     super(ContBatchNorm3d, self)._check_input_dim(input)
+# #     # def _check_input_dim(self, input):
+# #     #     if input.dim() != 4:
+# #     #         raise ValueError('expected 4D input (got {}D input)'
+# #     #                          .format(input.dim()))
+# #     #     super(ContBatchNorm3d, self)._check_input_dim(input)
 
-#     def forward(self, input):
-#         self._check_input_dim(input)
-#         return F.batch_norm(
-#             input, self.running_mean, self.running_var, self.weight, self.bias,
-#             True, self.momentum, self.eps)
+# #     def forward(self, input):
+# #         self._check_input_dim(input)
+# #         return F.batch_norm(
+# #             input, self.running_mean, self.running_var, self.weight, self.bias,
+# #             True, self.momentum, self.eps)
+
+
+# class LUConv(nn.Module):
+#     def __init__(self, nchan, norm_layer):
+#         super(LUConv, self).__init__()
+#         self.relu1 = nn.PReLU(nchan)
+#         self.conv1 = nn.Conv3d(nchan, nchan, kernel_size=5, padding=1)
+#         self.bn1 = norm_layer(nchan)
+
+#     def forward(self, x):
+#         out = self.relu1(self.bn1(self.conv1(x)))
+#         return out
+
+
+# def _make_nConv(nchan, depth, norm_layer):
+#     layers = []
+#     for _ in range(depth):
+#         layers.append(LUConv(nchan, norm_layer))
+#     return nn.Sequential(*layers)
+
+
+# class InputTransition(nn.Module):
+#     def __init__(self, inplanes, planes, norm_layer=None, groups=1, dilation=1, dropout=0, stride=1):
+
+#         super(InputTransition, self).__init__()
+#         bias = False
+#         self.conv1 = nn.Conv3d(inplanes, planes, kernel_size=5, stride=stride, padding=dilation, groups=groups, bias=bias, dilation=dilation)
+#         self.bn1 = norm_layer(planes)
+#         self.relu1 = ELUCons(planes)
+
+#     def forward(self, x):
+#         out = self.bn1(self.conv1(x))
+#         out = self.relu1(out)
+#         return out
+
+
+# class DownTransition(nn.Module):
+#     def __init__(self, inChans, nConvs, norm_layer=None, dropout=False):
+#         super(DownTransition, self).__init__()
+#         outChans = 2*inChans
+#         self.down_conv = nn.Conv3d(inChans, outChans, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
+#         self.bn1 = norm_layer(outChans)
+#         self.do1 = passthrough
+#         self.relu1 = ELUCons(outChans)
+#         self.relu2 = ELUCons(outChans)
+#         if dropout:
+#             self.do1 = nn.Dropout3d()
+#         self.ops = _make_nConv(outChans, nConvs, norm_layer)
+
+#     def forward(self, x):
+#         down = self.relu1(self.bn1(self.down_conv(x)))
+#         out = self.do1(down)
+#         out = self.ops(out)
+#         out = self.relu2(torch.add(out, down))
+#         return out
+
+
+# class UpTransition(nn.Module):
+#     def __init__(self, inChans, outChans, nConvs, norm_layer=None, dropout=False):
+#         super(UpTransition, self).__init__()
+#         self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
+#         self.bn1 = norm_layer(outChans // 2)
+#         self.do1 = passthrough
+#         self.do2 = nn.Dropout3d()
+#         self.relu1 = ELUCons(outChans // 2)
+#         self.relu2 = ELUCons(outChans)
+#         if dropout:
+#             self.do1 = nn.Dropout3d()
+#         self.ops = _make_nConv(outChans, nConvs, norm_layer)
+
+#     def forward(self, x, skipx):
+#         out = self.do1(x)
+#         skipxdo = self.do2(skipx)
+#         out = self.relu1(self.bn1(self.up_conv(out)))
+#         xcat = torch.cat((out, skipxdo), 1)
+#         out = self.ops(xcat)
+#         out = self.relu2(torch.add(out, xcat))
+#         return out
+
+
+# class OutputTransition(nn.Module):
+#     def __init__(self, inChans, outChans, norm_layer=None):
+#         super(OutputTransition, self).__init__()
+#         self.conv1 = nn.Conv3d(inChans, outChans, kernel_size=5, padding=1)
+#         self.bn1 = norm_layer(outChans)
+#         self.conv2 = nn.Conv3d(outChans, outChans, kernel_size=1) 
+#         self.relu1 = ELUCons(outChans)
+#         self.softmax = F.softmax
+
+#     def forward(self, x):
+#         # convolve 32 down to 2 channels
+#         out = self.relu1(self.bn1(self.conv1(x)))
+#         out = self.conv2(out)
+
+#         # make channels the last axis
+#         out = out.permute(0, 2, 3, 4, 1).contiguous()
+#         # flatten
+#         out = out.view(out.size(0), -1)
+#         out = self.softmax(out)
+#         # treat channel 0 as the predicted output
+#         return out
+
+class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
+    def _check_input_dim(self, input):
+        if input.dim() != 5:
+            raise ValueError('expected 5D input (got {}D input)'
+                             .format(input.dim()))
+
+    def forward(self, input):
+        self._check_input_dim(input)
+        return F.batch_norm(
+            input, self.running_mean, self.running_var, self.weight, self.bias,
+            True, self.momentum, self.eps)
+
 
 
 class LUConv(nn.Module):
-    def __init__(self, nchan, norm_layer):
+    def __init__(self, nchan, relu):
         super(LUConv, self).__init__()
-        self.relu1 = nn.PReLU(nchan)
-        self.conv1 = nn.Conv3d(nchan, nchan, kernel_size=5, padding=1)
-        self.bn1 = norm_layer(nchan)
+        self.relu1 = ELUCons(nchan)
+        self.conv1 = nn.Conv3d(nchan, nchan, kernel_size=5, padding=2)
+        self.bn1 = ContBatchNorm3d(nchan)
 
     def forward(self, x):
-        out = self.relu1(self.bn1(self.conv1(x)))
-        return out
+        x = self.relu1(self.bn1(self.conv1(x)))
+        return x
 
 
-def _make_nConv(nchan, depth, norm_layer):
+
+def _make_nConv(nchan, depth, relu):
     layers = []
     for _ in range(depth):
-        layers.append(LUConv(nchan, norm_layer))
+        layers.append(LUConv(nchan, relu))
     return nn.Sequential(*layers)
 
 
 class InputTransition(nn.Module):
-    def __init__(self, inplanes, planes, norm_layer=None, groups=1, dilation=1, dropout=0, stride=1):
-
+    def __init__(self, in_planes outChans, relu):
         super(InputTransition, self).__init__()
-        bias = False
-        self.conv1 = nn.Conv3d(inplanes, planes, kernel_size=5, stride=stride, padding=dilation, groups=groups, bias=bias, dilation=dilation)
-        self.bn1 = norm_layer(planes)
-        self.relu1 = ELUCons(planes)
+        self.conv1 = nn.Conv3d(in_planes, outChans, kernel_size=5, padding=2)
+        self.bn1 = ContBatchNorm3d(outChans)
+        self.relu1 = ELUCons(outChans)
 
     def forward(self, x):
         out = self.bn1(self.conv1(x))
@@ -246,48 +359,51 @@ class InputTransition(nn.Module):
         return out
 
 
+
 class DownTransition(nn.Module):
-    def __init__(self, inChans, nConvs, norm_layer=None, dropout=False):
+    def __init__(self, inChans, nConvs, relu, dropout=False):
         super(DownTransition, self).__init__()
         outChans = 2*inChans
-        self.down_conv = nn.Conv3d(inChans, outChans, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
-        self.bn1 = norm_layer(outChans)
+        self.down_conv = nn.Conv3d(inChans, outChans, kernel_size=2, stride=2)
+        self.bn1 = ContBatchNorm3d(outChans)
         self.do1 = passthrough
         self.relu1 = ELUCons(outChans)
         self.relu2 = ELUCons(outChans)
         if dropout:
             self.do1 = nn.Dropout3d()
-        self.ops = _make_nConv(outChans, nConvs, norm_layer)
+        self.ops = _make_nConv(outChans, nConvs, relu)
 
     def forward(self, x):
         down = self.relu1(self.bn1(self.down_conv(x)))
-        out = self.do1(down)
-        out = self.ops(out)
-        out = self.relu2(torch.add(out, down))
-        return out
+        x = self.do1(down)
+        x = self.ops(x)
+        x = self.relu2(torch.add(x, down))
+        return x
+
 
 
 class UpTransition(nn.Module):
-    def __init__(self, inChans, outChans, nConvs, norm_layer=None, dropout=False):
+    def __init__(self, inChans, outChans, nConvs, relu, dropout=False):
         super(UpTransition, self).__init__()
-        self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
-        self.bn1 = norm_layer(outChans // 2)
+        self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=2)
+        self.bn1 = ContBatchNorm3d(outChans // 2)
         self.do1 = passthrough
         self.do2 = nn.Dropout3d()
         self.relu1 = ELUCons(outChans // 2)
         self.relu2 = ELUCons(outChans)
         if dropout:
             self.do1 = nn.Dropout3d()
-        self.ops = _make_nConv(outChans, nConvs, norm_layer)
+        self.ops = _make_nConv(outChans, nConvs, relu)
 
     def forward(self, x, skipx):
-        out = self.do1(x)
+        x = self.do1(x)
         skipxdo = self.do2(skipx)
-        out = self.relu1(self.bn1(self.up_conv(out)))
-        xcat = torch.cat((out, skipxdo), 1)
-        out = self.ops(xcat)
-        out = self.relu2(torch.add(out, xcat))
-        return out
+        x = self.relu1(self.bn1(self.up_conv(x)))
+        xcat = torch.cat((x, skipxdo), 1)
+        x = self.ops(xcat)
+        x = self.relu2(torch.add(x, xcat))
+        return x
+
 
 
 class OutputTransition(nn.Module):
