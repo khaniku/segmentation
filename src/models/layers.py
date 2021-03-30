@@ -251,7 +251,7 @@ class InputTransition(nn.Module):
 
 
 class DownTransition(nn.Module):
-    def __init__(self, inChans, nConvs, dropout=False, norm_layer=None):
+    def __init__(self, inChans, nConvs, norm_layer=None, dropout=False):
         super(DownTransition, self).__init__()
         outChans = 2*inChans
         self.down_conv = nn.Conv3d(inChans, outChans, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
@@ -272,7 +272,7 @@ class DownTransition(nn.Module):
 
 
 class UpTransition(nn.Module):
-    def __init__(self, inChans, outChans, nConvs, dropout=False, norm_layer=None):
+    def __init__(self, inChans, outChans, nConvs, norm_layer=None, dropout=False):
         super(UpTransition, self).__init__()
         self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=1, padding=1, groups=1, bias=False, dilation=1)
         self.bn1 = norm_layer(outChans // 2)
