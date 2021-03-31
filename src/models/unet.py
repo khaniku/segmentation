@@ -13,18 +13,10 @@ class VNet(nn.Module):
     def __init__(self, inplanes, num_classes, width, norm_layer=None, deep_supervision=False, dropout=0,
                  **kwargs):
         super(VNet, self).__init__()
+        self.deep_supervision = deep_supervision
 
         features = [width * 2 ** i for i in range(4)]
         print(features)
-
-        # self.input_layer = InputTransition(inplanes, features[0], norm_layer)
-        # self.down_layer1 = DownTransition(features[0], 1, norm_layer)
-        # self.down_layer2 = DownTransition(features[1], 2, norm_layer)
-        # self.down_layer3 = DownTransition(features[2], 3, norm_layer, dropout=True)
-        # self.up_layer1 = UpTransition(features[3], features[2], 2, norm_layer, dropout=True)
-        # self.up_layer2 = UpTransition(features[2], features[1], 1, norm_layer)
-        # self.up_layer3 = UpTransition(features[1], features[0], 1, norm_layer)
-        # self.out_tr = OutputTransition(features[0], num_classes, norm_layer)
 
         self.input_layer = InputTransition(inplanes, features[0] // 2)
         self.down_layer1 = DownTransition(features[0] // 2, 1)
