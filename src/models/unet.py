@@ -46,7 +46,7 @@ class VNet(nn.Module):
         out = self.up_layer1(down4, down3)
         out = self.up_layer2(out, down2)
         out = self.up_layer3(out, down1)
-        out = self.up_layer3(out, in_lr)
+        out = self.up_layer4(out, in_lr)
         out = self.out_tr(out)
         return out
 
