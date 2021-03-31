@@ -31,10 +31,10 @@ class VNet(nn.Module):
         self.down_layer2 = DownTransition(features[1] // 2, 2)
         self.down_layer3 = DownTransition(features[2] // 2, 3, dropout=True)
         self.down_layer4 = DownTransition(features[3] // 2, 2, dropout=True)
-        self.up_layer1 = UpTransition(features[3], features[3] // 2, 2, dropout=True)
-        self.up_layer2 = UpTransition(features[3] // 2, features[2] // 2, 2, dropout=True)
-        self.up_layer3 = UpTransition(features[2] // 2, features[1] // 2, 1)
-        self.up_layer4 = UpTransition(features[1] // 2, features[0] // 2, 1)
+        self.up_layer1 = UpTransition(features[3], features[3], 2, dropout=True)
+        self.up_layer2 = UpTransition(features[3], features[2], 2, dropout=True)
+        self.up_layer3 = UpTransition(features[2], features[1], 1)
+        self.up_layer4 = UpTransition(features[1], features[0], 1)
         self.out_tr = OutputTransition(features[0] // 2, num_classes)
 
     def forward(self, x):
