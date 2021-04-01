@@ -26,7 +26,7 @@ class Brats(Dataset):
             self.patterns += ["_seg"]
         for patient_dir in patients_dir:
             patient_id = patient_dir.name
-            paths = [patient_dir / f"{patient_id}{value}.nii.gz" for value in self.patterns]
+            paths = [patient_dir / f"{patient_id}{value}.nii" for value in self.patterns]
             patient = dict(
                 id=patient_id, t1=paths[0], t1ce=paths[1],
                 t2=paths[2], flair=paths[3], seg=paths[4] if not no_seg else None
