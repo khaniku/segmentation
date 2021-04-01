@@ -2,9 +2,9 @@ import os
 from pathlib import Path
 
 user = "YOU"
-BRATS_TRAIN_FOLDERS = f"../../input/brats20-dataset-training-validation/BraTS2020_TrainingData/MICCAI_BraTS2020_TrainingData"
-BRATS_VAL_FOLDER = f"../../input/brats20-dataset-training-validation/BraTS2020_ValidationData/MICCAI_BraTS2020_ValidationData"
-BRATS_TEST_FOLDER = f"../../input/brats20-dataset-training-validation/BraTS2020_ValidationData/MICCAI_BraTS2020_ValidationData"
+BRATS_TRAIN_FOLDERS = f"/content/drive/MyDrive/TumorSegmentation/3DUnetCNN/examples/brats2020/MICCAI_BraTS2020_TrainingData"
+BRATS_VAL_FOLDER = f"/content/drive/MyDrive/TumorSegmentation/3DUnetCNN/examples/brats2020/MICCAI_BraTS2020_ValidationData"
+BRATS_TEST_FOLDER = f"/content/drive/MyDrive/TumorSegmentation/3DUnetCNN/examples/brats2020/MICCAI_BraTS2020_ValidationData"
 
 
 def get_brats_folder(on="val"):

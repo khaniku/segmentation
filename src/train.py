@@ -98,7 +98,7 @@ def main(args):
                     f"_dropout{args.dropout}" \
                     f"_warm_restart{args.warm_restart}" \
                     f"{'_' + args.com.replace(' ', '_') if args.com else ''}"
-    args.save_folder = pathlib.Path(f"./runs/{args.exp_name}")
+    args.save_folder = pathlib.Path(f"/content/drive/MyDrive/TumorSegmentation/runs/{args.exp_name}")
     args.save_folder.mkdir(parents=True, exist_ok=True)
     args.seg_folder = args.save_folder / "segs"
     args.seg_folder.mkdir(parents=True, exist_ok=True)
